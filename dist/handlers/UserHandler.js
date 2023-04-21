@@ -37,7 +37,8 @@ class UserHandler {
             let formattedUser = {
                 username: user.username,
                 password: '',
-                dateCreated: user.dateCreated
+                dateCreated: user.dateCreated,
+                role: user.role
             };
             formattedUser.password = yield hashPassword(user.password);
             return (_a = this.tigris) === null || _a === void 0 ? void 0 : _a.createUser(formattedUser);
@@ -57,6 +58,11 @@ class UserHandler {
     updateUser(user) {
         var _a;
         return (_a = this.tigris) === null || _a === void 0 ? void 0 : _a.updateUser(user);
+    }
+    getUserForUID(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.tigris.getUserForUID(userId);
+        });
     }
 }
 exports.default = UserHandler;

@@ -108,16 +108,17 @@ export default class TigrisService {
 
     async updateUser(user: CleanUser) {
         if(userCollection) {
-            const newUser = await userCollection.updateOne({
+            const response = await userCollection.updateOne({
                 filter: {
                     id: user.id
                 },
                 fields: {
-                    username: user.username
+                    username: user.username,
+                    role: user.role
                 }
             })
 
-            return { status: 1, userFeedback: "User has been updated successfully." }
+            return { status: 1, userFeedback: "User has been updated successfully.", response: response }
         } else {
             throw new Error("Database connection error.");
         }
@@ -140,11 +141,19 @@ export default class TigrisService {
         }
     }
 
-    async getUserForSessionId(sessionId: string) {
+    async getSessionForSID(sessionId: string) {
         if(sessionCollection) {
             return sessionCollection.findOne({ filter: { sessionId: sessionId } });
         } else {
             throw new Error("Database connection error.");
+        }
+    }
+
+    async getUserForUID(userId: string) {
+        if(userCollection) {
+            return await userCollection.findOne({ filter: { id: userId } });
+        } else {
+            throw new Error("Database connection error.")
         }
     }
 

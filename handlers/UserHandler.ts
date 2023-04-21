@@ -30,7 +30,8 @@ export default class UserHandler {
         let formattedUser = {
             username: user.username,
             password: '',
-            dateCreated: user.dateCreated
+            dateCreated: user.dateCreated,
+            role: user.role
         }
 
         formattedUser.password = await hashPassword(user.password);
@@ -50,5 +51,9 @@ export default class UserHandler {
 
     updateUser(user: CleanUser) {
         return this.tigris?.updateUser(user);
+    }
+
+    async getUserForUID(userId: string) {
+        return this.tigris.getUserForUID(userId);
     }
 }

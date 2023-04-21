@@ -14,7 +14,7 @@ function validatePostData(postData) {
 exports.validatePostData = validatePostData;
 function validateUserData(userData) {
     let missingProperty = false;
-    let requiredProperties = ["username", "password", "dateCreated"];
+    let requiredProperties = ["username", "password", "dateCreated", "role"];
     for (let property of requiredProperties) {
         if (!userData[property]) {
             missingProperty = true;
@@ -25,7 +25,7 @@ function validateUserData(userData) {
 exports.validateUserData = validateUserData;
 function validateCleanUserData(userData) {
     let missingProperty = false;
-    let requiredProperties = ["username", "id", "dateCreated"];
+    let requiredProperties = ["username", "id", "dateCreated", "role"];
     for (let property of requiredProperties) {
         if (!userData[property]) {
             missingProperty = true;

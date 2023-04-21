@@ -9,7 +9,7 @@ class SessionHandler {
     }
     getUserForSessionId(sessionId) {
         var _a;
-        return (_a = this.tigris) === null || _a === void 0 ? void 0 : _a.getUserForSessionId(sessionId);
+        return (_a = this.tigris) === null || _a === void 0 ? void 0 : _a.getSessionForSID(sessionId);
     }
     createNewSession(userId) {
         var _a;

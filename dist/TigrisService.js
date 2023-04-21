@@ -120,15 +120,16 @@ class TigrisService {
     updateUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
             if (userCollection) {
-                const newUser = yield userCollection.updateOne({
+                const response = yield userCollection.updateOne({
                     filter: {
                         id: user.id
                     },
                     fields: {
-                        username: user.username
+                        username: user.username,
+                        role: user.role
                     }
                 });
-                return { status: 1, userFeedback: "User has been updated successfully." };
+                return { status: 1, userFeedback: "User has been updated successfully.", response: response };
             }
             else {
                 throw new Error("Database connection error.");
@@ -153,10 +154,20 @@ class TigrisService {
             }
         });
     }
-    getUserForSessionId(sessionId) {
+    getSessionForSID(sessionId) {
         return __awaiter(this, void 0, void 0, function* () {
             if (sessionCollection) {
                 return sessionCollection.findOne({ filter: { sessionId: sessionId } });
+            }
+            else {
+                throw new Error("Database connection error.");
+            }
+        });
+    }
+    getUserForUID(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (userCollection) {
+                return yield userCollection.findOne({ filter: { id: userId } });
             }
             else {
                 throw new Error("Database connection error.");

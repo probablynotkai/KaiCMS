@@ -13,4 +13,7 @@ export class Users {
 
     @Field(TigrisDataTypes.STRING)
     dateCreated?: string;
+
+    @Field(TigrisDataTypes.STRING)
+    role?: string;
 }

@@ -31,7 +31,6 @@ app.use(cors());
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-const host = "localhost";
 app.get('', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let sid;
     if (req.cookies) {
@@ -40,8 +39,17 @@ app.get('', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (sid) {
         const sessionLogin = yield logins.attemptSessionLogin(sid);
         if (sessionLogin.status == 1) {
-            // @ts-ignore
-            res.send(`<h1>CMS Test Page - Welcome back ${sessionLogin.user.userId}</h1>`);
+            if (sessionLogin.session) {
+                // @ts-ignore
+                const user = yield users.getUserForUID(sessionLogin.session.userId);
+                if (user) {
+                    res.send(`<h1>Welcome back [${user.role}] ${user.username}</h1>`);
+                    return;
+                }
+            }
+        }
+        else {
+            res.clearCookie("sid", { path: "/" });
         }
     }
     res.send("<h1>CMS Test Page</h1>");
@@ -109,7 +117,8 @@ app.post('/v1/createUser', (req, res) => __awaiter(void 0, void 0, void 0, funct
     const userData = {
         username: req.body['username'],
         password: req.body['password'],
-        dateCreated: new Date().toUTCString()
+        dateCreated: new Date().toUTCString(),
+        role: req.body['role']
     };
     if (!(0, Validation_1.validateUserData)(userData)) {
         res.send({
@@ -155,7 +164,8 @@ app.post('/v1/updateUser', (req, res) => __awaiter(void 0, void 0, void 0, funct
     const userData = {
         id: req.body['id'],
         username: req.body['username'],
-        dateCreated: req.body['dateCreated']
+        dateCreated: req.body['dateCreated'],
+        role: req.body['role']
     };
     if (!(0, Validation_1.validateCleanUserData)(userData)) {
         res.send({
@@ -188,8 +198,12 @@ app.post('/v1/loginUser', (req, res) => __awaiter(void 0, void 0, void 0, functi
                 // @ts-ignore
                 const sid = response.sessionId;
                 const now = new Date();
-                const expiryDate = new Date(now.setHours(now.getHours() + 2));
-                res.setHeader("Set-Cookie", `sid=${sid}; Expires=${expiryDate.toUTCString()}`);
+                const expiryDate = new Date(now.setMonth(now.getMonth() + 2));
+                // res.setHeader("Set-Cookie", `sid=${sid}; Expires=${expiryDate.toUTCString()}; Path="/"`);
+                res.cookie("sid", sid, {
+                    expires: expiryDate,
+                    path: "/"
+                });
                 res.send({
                     status: 1,
                     userFeedback: "Successfully logged in."

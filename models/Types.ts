@@ -15,19 +15,22 @@ export type User = {
     id: string,
     username: string,
     password: string,
-    dateCreated: string
+    dateCreated: string,
+    role: string
 }
 
 export type RawUser = {
     username: string,
     password: string,
     dateCreated: string
+    role: string
 }
 
 export type CleanUser = {
     id: string,
     username: string,
-    dateCreated: string
+    dateCreated: string,
+    role: string
 }
 
 export type Session = {

@@ -48,9 +48,9 @@ class LoginHandler {
     }
     attemptSessionLogin(sessionId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.tigris.getUserForSessionId(sessionId);
-            if (user) {
-                return { status: 1, userFeedback: "Successfully logged in.", user: user };
+            const session = yield this.tigris.getSessionForSID(sessionId);
+            if (session) {
+                return { status: 1, userFeedback: "Successfully logged in.", session: session };
             }
             else {
                 return { status: -1, userFeedback: "Invalid session ID.", user: undefined };
@@ -72,7 +72,7 @@ class LoginHandler {
             }
             return {
                 status: -1,
-                userFeedback: "Something unexpected went wrong. Please try again."
+                userFeedback: "That username doesn't exist, please check your spelling and try again."
             };
         });
     }

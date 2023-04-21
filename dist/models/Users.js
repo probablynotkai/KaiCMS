@@ -29,6 +29,10 @@ __decorate([
     (0, core_1.Field)(core_1.TigrisDataTypes.STRING),
     __metadata("design:type", String)
 ], Users.prototype, "dateCreated", void 0);
+__decorate([
+    (0, core_1.Field)(core_1.TigrisDataTypes.STRING),
+    __metadata("design:type", String)
+], Users.prototype, "role", void 0);
 Users = __decorate([
     (0, core_1.TigrisCollection)("users")
 ], Users);

@@ -40,10 +40,10 @@ export default class LoginHandler {
     }
 
     async attemptSessionLogin(sessionId: string) {
-        const user = await this.tigris.getUserForSessionId(sessionId);
+        const session = await this.tigris.getSessionForSID(sessionId);
 
-        if(user) {
-            return { status: 1, userFeedback: "Successfully logged in.", user: user }
+        if(session) {
+            return { status: 1, userFeedback: "Successfully logged in.", session: session }
         } else {
             return { status: -1, userFeedback: "Invalid session ID.", user: undefined }
         }
@@ -64,7 +64,7 @@ export default class LoginHandler {
 
         return {
             status: -1,
-            userFeedback: "Something unexpected went wrong. Please try again."
+            userFeedback: "That username doesn't exist, please check your spelling and try again."
         };
     }
 }

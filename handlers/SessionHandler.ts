@@ -11,7 +11,7 @@ export default class SessionHandler {
     }
 
     getUserForSessionId(sessionId: string) {
-        return this.tigris?.getUserForSessionId(sessionId);
+        return this.tigris?.getSessionForSID(sessionId);
     }
 
     createNewSession(userId: string) {
