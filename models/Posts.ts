@@ -16,4 +16,10 @@ export class Posts {
 
     @Field(TigrisDataTypes.STRING)
     thumbnail?: string;
+
+    @Field(TigrisDataTypes.STRING)
+    datePosted?: string;
+
+    @Field(TigrisDataTypes.STRING)
+    postedBy?: string;
 }

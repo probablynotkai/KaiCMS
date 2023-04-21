@@ -10,3 +10,28 @@ export type Post = {
     postContent: string,
     thumbnail: string
 }
+
+export type User = {
+    id: string,
+    username: string,
+    password: string,
+    dateCreated: string
+}
+
+export type RawUser = {
+    username: string,
+    password: string,
+    dateCreated: string
+}
+
+export type CleanUser = {
+    id: string,
+    username: string,
+    dateCreated: string
+}
+
+export type Session = {
+    sessionId: string,
+    userId: string,
+    expiryDate: string
+}

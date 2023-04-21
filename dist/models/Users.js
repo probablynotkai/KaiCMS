@@ -9,38 +9,27 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Posts = void 0;
-const Field = require('@tigrisdata/core').Field;
-const PrimaryKey = require('@tigrisdata/core').PrimaryKey;
-const TigrisCollection = require('@tigrisdata/core').TigrisCollection;
-const TigrisDataTypes = require('@tigrisdata/core').TigrisDataTypes;
-let Posts = class Posts {
+exports.Users = void 0;
+const core_1 = require("@tigrisdata/core");
+let Users = class Users {
 };
 __decorate([
-    PrimaryKey(TigrisDataTypes.INT64, { order: 1, autoGenerate: true }),
+    (0, core_1.PrimaryKey)(core_1.TigrisDataTypes.INT64, { order: 1, autoGenerate: true }),
     __metadata("design:type", Number)
-], Posts.prototype, "id", void 0);
+], Users.prototype, "id", void 0);
 __decorate([
-    Field(TigrisDataTypes.STRING),
+    (0, core_1.Field)(core_1.TigrisDataTypes.STRING),
     __metadata("design:type", String)
-], Posts.prototype, "title", void 0);
+], Users.prototype, "username", void 0);
 __decorate([
-    Field(TigrisDataTypes.STRING),
+    (0, core_1.Field)(core_1.TigrisDataTypes.STRING),
     __metadata("design:type", String)
-], Posts.prototype, "postContent", void 0);
+], Users.prototype, "password", void 0);
 __decorate([
-    Field(TigrisDataTypes.STRING),
+    (0, core_1.Field)(core_1.TigrisDataTypes.STRING),
     __metadata("design:type", String)
-], Posts.prototype, "thumbnail", void 0);
-__decorate([
-    Field(TigrisDataTypes.STRING),
-    __metadata("design:type", String)
-], Posts.prototype, "datePosted", void 0);
-__decorate([
-    Field(TigrisDataTypes.STRING),
-    __metadata("design:type", String)
-], Posts.prototype, "postedBy", void 0);
-Posts = __decorate([
-    TigrisCollection("posts")
-], Posts);
-exports.Posts = Posts;
+], Users.prototype, "dateCreated", void 0);
+Users = __decorate([
+    (0, core_1.TigrisCollection)("users")
+], Users);
+exports.Users = Users;
