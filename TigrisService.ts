@@ -39,6 +39,14 @@ export default class TigrisService {
         }
     }
 
+    async retrievePostForId(postId: string) {
+        if(postCollection) {
+            return postCollection.findOne({ filter: { id: postId } });
+        } else {
+            throw new Error("Database connection error.");
+        }
+    }
+
     async createPost(post: RawPost) {
         if(postCollection) {
             let newPost = await postCollection.insertOne(post);

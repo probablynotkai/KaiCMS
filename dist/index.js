@@ -32,31 +32,34 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.get('', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let sid;
-    if (req.cookies) {
-        sid = req.cookies.sid;
-    }
-    if (sid) {
-        const sessionLogin = yield logins.attemptSessionLogin(sid);
-        if (sessionLogin.status == 1) {
-            if (sessionLogin.session) {
-                // @ts-ignore
-                const user = yield users.getUserForUID(sessionLogin.session.userId);
-                if (user) {
-                    res.send(`<h1>Welcome back [${user.role}] ${user.username}</h1>`);
-                    return;
-                }
-            }
-        }
-        else {
-            res.clearCookie("sid", { path: "/" });
-        }
+    const user = yield logins.handleSessionIdentification(req.cookies);
+    if (user) {
+        res.send(`<h1>Welcome back ${user.username}</h1>`);
+        return;
     }
     res.send("<h1>CMS Test Page</h1>");
 }));
 app.get('/v1/getAllPosts', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const allPosts = yield posts.retrieveAllPosts();
     res.send(allPosts);
+}));
+app.post('/v1/getPostForId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const postId = req.body['id'];
+    if (!postId) {
+        res.send({
+            status: -1,
+            userFeedback: 'There are missing properties in the request body.'
+        });
+    }
+    else {
+        const postFound = yield posts.retrievePostForId(postId);
+        if (postFound) {
+            res.send({ status: 1, post: postFound });
+        }
+        else {
+            res.send({ status: -1, userFeedback: "Post not found." });
+        }
+    }
 }));
 app.post('/v1/deletePost', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let postData = {
@@ -65,7 +68,7 @@ app.post('/v1/deletePost', (req, res) => __awaiter(void 0, void 0, void 0, funct
     if (!postData.id) {
         res.send({
             status: -1,
-            message: 'There are missing properties in the request body.'
+            userFeedback: 'There are missing properties in the request body.'
         });
     }
     else {
@@ -74,22 +77,31 @@ app.post('/v1/deletePost', (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 }));
 app.post('/v1/createPost', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let postData = {
-        title: req.body['title'],
-        postContent: req.body['postContent'],
-        thumbnail: req.body['thumbnail'],
-        datePosted: new Date().toUTCString()
-    };
-    if (!(0, Validation_1.validatePostData)(postData)) {
-        res.send({
-            status: -1,
-            message: 'There are missing properties in the request body.'
-        });
+    const user = yield logins.handleSessionIdentification(req.cookies);
+    if (user) {
+        let postData = {
+            title: req.body['title'],
+            postContent: req.body['postContent'],
+            thumbnail: req.body['thumbnail'],
+            datePosted: new Date().toUTCString(),
+            postedBy: user.username
+        };
+        if (!(0, Validation_1.validatePostData)(postData)) {
+            res.send({
+                status: -1,
+                userFeedback: 'There are missing properties in the request body.'
+            });
+        }
+        else {
+            const newPost = yield posts.createPost(postData);
+            res.send(newPost);
+        }
+        return;
     }
-    else {
-        const newPost = yield posts.createPost(postData);
-        res.send(newPost);
-    }
+    res.send({
+        status: -1,
+        userFeedback: "You need to be logged in for this feature."
+    });
 }));
 app.post('/v1/updatePost', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let postData = {
@@ -101,7 +113,7 @@ app.post('/v1/updatePost', (req, res) => __awaiter(void 0, void 0, void 0, funct
     if (!(0, Validation_1.validatePostData)(postData)) {
         res.send({
             status: -1,
-            message: 'There are missing properties in the request body.'
+            userFeedback: 'There are missing properties in the request body.'
         });
     }
     else {
@@ -123,7 +135,7 @@ app.post('/v1/createUser', (req, res) => __awaiter(void 0, void 0, void 0, funct
     if (!(0, Validation_1.validateUserData)(userData)) {
         res.send({
             status: -1,
-            message: 'There are missing properties in the request body.'
+            userFeedback: 'There are missing properties in the request body.'
         });
     }
     else {
@@ -139,7 +151,7 @@ app.post('/v1/changePassword', (req, res) => __awaiter(void 0, void 0, void 0, f
     if (!userData.id || !userData.newPassword) {
         res.send({
             status: -1,
-            message: 'There are missing properties in the request body.'
+            userFeedback: 'There are missing properties in the request body.'
         });
     }
     else {
@@ -152,7 +164,7 @@ app.post('/v1/deleteUser', (req, res) => __awaiter(void 0, void 0, void 0, funct
     if (!id) {
         res.send({
             status: -1,
-            message: 'There are missing properties in the request body.'
+            userFeedback: 'There are missing properties in the request body.'
         });
     }
     else {
@@ -170,7 +182,7 @@ app.post('/v1/updateUser', (req, res) => __awaiter(void 0, void 0, void 0, funct
     if (!(0, Validation_1.validateCleanUserData)(userData)) {
         res.send({
             status: -1,
-            message: 'There are missing properties in the request body.'
+            userFeedback: 'There are missing properties in the request body.'
         });
     }
     else {
@@ -184,7 +196,7 @@ app.post('/v1/loginUser', (req, res) => __awaiter(void 0, void 0, void 0, functi
     if (!username || !rawPassword) {
         res.send({
             status: -1,
-            message: 'There are missing properties in the request body.'
+            userFeedback: 'There are missing properties in the request body.'
         });
     }
     else {

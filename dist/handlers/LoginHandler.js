@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const SessionHandler_1 = __importDefault(require("./SessionHandler"));
+const UserHandler_1 = __importDefault(require("./UserHandler"));
 const bcrypt = require('bcrypt');
 const hashPassword = (password) => __awaiter(void 0, void 0, void 0, function* () {
     const salt = yield bcrypt.genSalt(10);
@@ -24,6 +25,7 @@ class LoginHandler {
             throw new Error("undefined instance of Tigris.");
         this.tigris = tigris;
         this.sessionHandler = new SessionHandler_1.default(this.tigris);
+        this.userHandler = new UserHandler_1.default(this.tigris);
     }
     loginUser(username, rawPassword) {
         var _a;
@@ -74,6 +76,27 @@ class LoginHandler {
                 status: -1,
                 userFeedback: "That username doesn't exist, please check your spelling and try again."
             };
+        });
+    }
+    handleSessionIdentification(cookies) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sid;
+            if (cookies) {
+                sid = cookies.sid;
+            }
+            if (sid) {
+                const sessionLogin = yield this.attemptSessionLogin(sid);
+                if (sessionLogin.status == 1) {
+                    if (sessionLogin.session) {
+                        // @ts-ignore
+                        const user = yield this.userHandler.getUserForUID(sessionLogin.session.userId);
+                        if (user) {
+                            return user;
+                        }
+                    }
+                }
+            }
+            return undefined;
         });
     }
 }

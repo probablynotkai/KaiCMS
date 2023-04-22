@@ -1,5 +1,6 @@
 import TigrisService from "../TigrisService";
 import SessionHandler from "./SessionHandler";
+import UserHandler from "./UserHandler";
 
 const bcrypt = require('bcrypt');
 const hashPassword = async (password: string) => {
@@ -10,11 +11,13 @@ const hashPassword = async (password: string) => {
 export default class LoginHandler {
     private readonly tigris;
     private readonly sessionHandler;
+    private readonly userHandler;
     constructor(tigris: TigrisService) {
         if(!tigris) throw new Error("undefined instance of Tigris.")
 
         this.tigris = tigris;
         this.sessionHandler = new SessionHandler(this.tigris);
+        this.userHandler = new UserHandler(this.tigris);
     }
 
     async loginUser(username: string, rawPassword: string) {
@@ -66,5 +69,30 @@ export default class LoginHandler {
             status: -1,
             userFeedback: "That username doesn't exist, please check your spelling and try again."
         };
+    }
+
+    async handleSessionIdentification(cookies: any) {
+        let sid;
+
+        if(cookies) {
+            sid = cookies.sid;
+        }
+    
+        if(sid) {
+            const sessionLogin = await this.attemptSessionLogin(sid);
+    
+            if(sessionLogin.status == 1) {
+                if(sessionLogin.session) {
+                    // @ts-ignore
+                    const user = await this.userHandler.getUserForUID(sessionLogin.session.userId);
+    
+                    if(user) {
+                        return user;
+                    }
+                }
+            }
+        }
+
+        return undefined;
     }
 }

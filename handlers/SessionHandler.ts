@@ -10,10 +10,6 @@ export default class SessionHandler {
         this.tigris = tigris;
     }
 
-    getUserForSessionId(sessionId: string) {
-        return this.tigris?.getSessionForSID(sessionId);
-    }
-
     createNewSession(userId: string) {
         const currentDate = new Date();
         currentDate.setHours(currentDate.getHours()+2)

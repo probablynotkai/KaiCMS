@@ -43,6 +43,16 @@ class TigrisService {
             }
         });
     }
+    retrievePostForId(postId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (postCollection) {
+                return postCollection.findOne({ filter: { id: postId } });
+            }
+            else {
+                throw new Error("Database connection error.");
+            }
+        });
+    }
     createPost(post) {
         return __awaiter(this, void 0, void 0, function* () {
             if (postCollection) {

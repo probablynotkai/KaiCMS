@@ -13,6 +13,10 @@ export default class PostHandler {
         return this.tigris.retrieveAllPosts();
     }
 
+    retrievePostForId(postId: string) {
+        return this.tigris?.retrievePostForId(postId);
+    }
+
     createPost(post: RawPost) {
         return this.tigris.createPost(post);
     }

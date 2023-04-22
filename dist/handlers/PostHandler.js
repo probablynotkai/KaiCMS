@@ -9,6 +9,10 @@ class PostHandler {
     retrieveAllPosts() {
         return this.tigris.retrieveAllPosts();
     }
+    retrievePostForId(postId) {
+        var _a;
+        return (_a = this.tigris) === null || _a === void 0 ? void 0 : _a.retrievePostForId(postId);
+    }
     createPost(post) {
         return this.tigris.createPost(post);
     }

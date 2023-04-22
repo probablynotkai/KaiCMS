@@ -24,28 +24,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get('', async (req: any, res: any) => {
-    let sid;
+    const user = await logins.handleSessionIdentification(req.cookies);
 
-    if(req.cookies) {
-        sid = req.cookies.sid;
-    }
-
-    if(sid) {
-        const sessionLogin = await logins.attemptSessionLogin(sid);
-
-        if(sessionLogin.status == 1) {
-            if(sessionLogin.session) {
-                // @ts-ignore
-                const user = await users.getUserForUID(sessionLogin.session.userId);
-
-                if(user) {
-                    res.send(`<h1>Welcome back [${user.role}] ${user.username}</h1>`)
-                    return;
-                }
-            }
-        } else {
-            res.clearCookie("sid", { path: "/" })
-        }
+    if(user) {
+        res.send(`<h1>Welcome back ${user.username}</h1>`)
+        return;
     }
 
     res.send("<h1>CMS Test Page</h1>")
@@ -57,6 +40,25 @@ app.get('/v1/getAllPosts', async(req: any, res: any) => {
     res.send(allPosts);
 })
 
+app.post('/v1/getPostForId', async(req: any, res: any) => {
+    const postId = req.body['id'];
+
+    if(!postId) {
+        res.send({
+            status: -1,
+            userFeedback: 'There are missing properties in the request body.'
+        })
+    } else {
+        const postFound = await posts.retrievePostForId(postId);
+
+        if(postFound) {
+            res.send({ status: 1, post: postFound });
+        } else {
+            res.send({ status: -1, userFeedback: "Post not found." });
+        }
+    }
+})
+
 app.post('/v1/deletePost', async (req: any, res: any) => {
     let postData = {
         id: req.body['id']
@@ -65,7 +67,7 @@ app.post('/v1/deletePost', async (req: any, res: any) => {
     if(!postData.id) {
         res.send({
             status: -1,
-            message: 'There are missing properties in the request body.'
+            userFeedback: 'There are missing properties in the request body.'
         })
     } else {
         const response = await posts.deletePost(postData.id);
@@ -75,23 +77,34 @@ app.post('/v1/deletePost', async (req: any, res: any) => {
 })
 
 app.post('/v1/createPost', async (req: any, res: any) => {
-    let postData = {
-        title: req.body['title'],
-        postContent: req.body['postContent'],
-        thumbnail: req.body['thumbnail'],
-        datePosted: new Date().toUTCString()
-    };
+    const user = await logins.handleSessionIdentification(req.cookies);
+    
+    if(user) {
+        let postData = {
+            title: req.body['title'],
+            postContent: req.body['postContent'],
+            thumbnail: req.body['thumbnail'],
+            datePosted: new Date().toUTCString(),
+            postedBy: user.username
+        };
 
-    if(!validatePostData(postData)) {
-        res.send({
-            status: -1,
-            message: 'There are missing properties in the request body.'
-        })
-    } else {
-        const newPost = await posts.createPost(postData);
+        if(!validatePostData(postData)) {
+            res.send({
+                status: -1,
+                userFeedback: 'There are missing properties in the request body.'
+            })
+        } else {
+            const newPost = await posts.createPost(postData);
 
-        res.send(newPost);
+            res.send(newPost);
+        }
+        return;
     }
+    
+    res.send({
+        status: -1,
+        userFeedback: "You need to be logged in for this feature."
+    })
 })
 
 app.post('/v1/updatePost', async (req: any, res: any) => {
@@ -105,7 +118,7 @@ app.post('/v1/updatePost', async (req: any, res: any) => {
     if(!validatePostData(postData)) {
         res.send({
             status: -1,
-            message: 'There are missing properties in the request body.'
+            userFeedback: 'There are missing properties in the request body.'
         })
     } else {
         const newPost = await posts.updatePost(postData);
@@ -131,7 +144,7 @@ app.post('/v1/createUser', async (req: any, res: any) => {
     if(!validateUserData(userData)) {
         res.send({
             status: -1,
-            message: 'There are missing properties in the request body.'
+            userFeedback: 'There are missing properties in the request body.'
         })
     } else {
         const response = await users.createUser(userData);
@@ -149,7 +162,7 @@ app.post('/v1/changePassword', async (req: any, res: any) => {
     if(!userData.id || !userData.newPassword) {
         res.send({
             status: -1,
-            message: 'There are missing properties in the request body.'
+            userFeedback: 'There are missing properties in the request body.'
         })
     } else {
         const response = await users.changePassword(userData.id, userData.newPassword);
@@ -164,7 +177,7 @@ app.post('/v1/deleteUser', async (req: any, res: any) => {
     if(!id) {
         res.send({
             status: -1,
-            message: 'There are missing properties in the request body.'
+            userFeedback: 'There are missing properties in the request body.'
         })
     } else {
         const response = await users.deleteUser(id);
@@ -184,7 +197,7 @@ app.post('/v1/updateUser', async (req: any, res: any) => {
     if(!validateCleanUserData(userData)) {
         res.send({
             status: -1,
-            message: 'There are missing properties in the request body.'
+            userFeedback: 'There are missing properties in the request body.'
         })
     } else {
         const response = await users.updateUser(userData);
@@ -200,7 +213,7 @@ app.post('/v1/loginUser', async (req: any, res: any) => {
     if(!username || !rawPassword) {
         res.send({
             status: -1,
-            message: 'There are missing properties in the request body.'
+            userFeedback: 'There are missing properties in the request body.'
         })
     } else {
         const response = await logins.loginUser(username, rawPassword);

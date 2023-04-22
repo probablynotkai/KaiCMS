@@ -7,10 +7,6 @@ class SessionHandler {
             throw new Error("undefined instance of Tigris.");
         this.tigris = tigris;
     }
-    getUserForSessionId(sessionId) {
-        var _a;
-        return (_a = this.tigris) === null || _a === void 0 ? void 0 : _a.getSessionForSID(sessionId);
-    }
     createNewSession(userId) {
         var _a;
         const currentDate = new Date();
